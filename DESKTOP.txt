@@ -1,0 +1,31 @@
+OptiDZ — Application bureau Windows
+===================================
+
+1) Tester sur ce PC (sans installateur)
+   - Double-cliquez : Lancer-OptiDZ.bat
+   - Ou dans un terminal : npm install  puis  npm run desktop
+
+2) Creer un fichier .exe telechargeable
+   - Double-cliquez : Creer-Installateur-Windows.bat
+   - Attendez la fin (plusieurs minutes la premiere fois)
+   - Ouvrez le dossier dist\
+
+3) Fichiers generes
+   - OptiDZ-1.0.0-x64.exe
+     → Installateur : l'utilisateur double-clique, choisit un dossier,
+       raccourci Bureau + Menu Demarrer.
+   - OptiDZ-Portable-1.0.0.exe
+     → Portable : pas d'installation, ideal pour une cle USB.
+
+4) Distribuer
+   - Envoyez le .exe a vos clients (WeTransfer, Google Drive, site web...)
+   - Ils l'installent comme n'importe quel logiciel Windows.
+
+5) Cle Claude (assistant)
+   - Apres installation, creez le fichier :
+     %APPDATA%\optidz\claude.key
+   - Une seule ligne : sk-ant-...
+
+Prerequis pour CONSTRUIRE l'exe (sur votre PC developpeur) :
+   - Node.js LTS : https://nodejs.org
+   - Windows 10/11 64 bits

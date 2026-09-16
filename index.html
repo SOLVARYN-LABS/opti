@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0D7A70">
+  <title>OptiDZ — Gestion d’optique</title>
+  <link rel="icon" href="assets/icon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="assets/logo-mark.png">
+  <link rel="apple-touch-icon" href="assets/logo-mark.png">
+  <link rel="stylesheet" href="css/app.css?v=37">
+</head>
+<body>
+  <div id="root"></div>
+  <div id="modal" class="modal" onclick="if(event.target===this)OptiApp.closeModal()"></div>
+  <div id="toast" class="toast"></div>
+  <aside id="claudeDock" class="claude-dock" hidden></aside>
+  <script src="vendor/sqljs/sql-wasm.js"></script>
+  <script>if (typeof initSqlJs === 'function') window.initSqlJs = initSqlJs;</script>
+  <script src="js/db.js?v=20"></script>
+  <script src="js/license.js?v=6"></script>
+  <script src="js/store.js?v=27"></script>
+  <script src="js/ai.js?v=8"></script>
+  <script src="js/ops.js?v=14"></script>
+  <script src="js/app.js?v=42"></script>
+  <script src="js/atelier.js?v=1"></script>
+  <script>
+    (function () {
+      if (!navigator.onLine) return;
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+      s.async = true;
+      document.body.appendChild(s);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+node_modules/
+backend/claude.key
+dist/
+dist-admin/
+*.exe
+*.blockmap
+*.yml
+!backend/claude.key.example
+

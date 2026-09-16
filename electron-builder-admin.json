@@ -1,0 +1,52 @@
+{
+  "appId": "dz.optidz.admin",
+  "productName": "OptiDZ Admin",
+  "copyright": "Copyright © OptiDZ",
+  "directories": {
+    "output": "dist-admin",
+    "buildResources": "build"
+  },
+  "extraMetadata": {
+    "name": "optidz-admin",
+    "main": "electron/admin-main.js"
+  },
+  "icon": "build/icon.ico",
+  "files": [
+    "admin/**/*",
+    "js/license.js",
+    "assets/**/*",
+    "electron/admin-main.js",
+    "electron/preload.js"
+  ],
+  "asar": true,
+  "win": {
+    "icon": "build/icon.ico",
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "artifactName": "OptiDZ-Admin-Setup-${version}.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "allowElevation": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "runAfterFinish": true,
+    "deleteAppDataOnUninstall": false,
+    "shortcutName": "OptiDZ Admin",
+    "menuCategory": "OptiDZ",
+    "installerLanguages": ["fr_FR"],
+    "language": "1036",
+    "displayLanguageSelector": false,
+    "installerIcon": "build/icon.ico",
+    "uninstallerIcon": "build/icon.ico",
+    "installerHeaderIcon": "build/icon.ico",
+    "license": "build/license-admin.txt",
+    "artifactName": "OptiDZ-Admin-Setup-${version}.${ext}"
+  }
+}

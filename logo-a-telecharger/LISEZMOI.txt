@@ -1,0 +1,16 @@
+OptiDZ — Logos à retélécharger
+================================
+
+Fichiers :
+- OptiDZ-logo.png   → logo complet (lunettes + texte)
+- OptiDZ-icon.ico   → icône Windows (Bureau, barre des tâches, installateur)
+
+Aussi copiés sur le Bureau : dossier « OptiDZ-logo »
+
+Pour ouvrir l’app sans repasser par le dossier :
+- Double-clic sur le raccourci « OptiDZ » du Bureau
+- Ou chercher « OptiDZ » dans le Menu Démarrer
+
+Installateur Windows (avec raccourcis automatiques) :
+- Lancez Creer-Installateur-Windows.bat
+- Puis installez dist\OptiDZ-1.0.0-x64.exe

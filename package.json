@@ -1,0 +1,77 @@
+{
+  "name": "optidz",
+  "version": "1.0.3",
+  "description": "OptiDZ — logiciel de gestion d'optique pour l'Algérie",
+  "main": "electron/main.js",
+  "author": "OptiDZ",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "desktop": "electron .",
+    "admin": "electron electron/admin-main.js",
+    "server": "node backend/server.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win",
+    "dist:admin": "electron-builder --win --config electron-builder-admin.json",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "dz.optidz.app",
+    "productName": "OptiDZ",
+    "copyright": "Copyright © OptiDZ",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "icon": "build/icon.ico",
+    "files": [
+      "index.html",
+      "css/**/*",
+      "js/**/*",
+      "vendor/**/*",
+      "assets/**/*",
+      "electron/**/*",
+      "backend/claude-api.js",
+      "backend/server.js",
+      "backend/claude.key.example",
+      "!backend/claude.key",
+      "!**/*.md",
+      "!dist/**/*"
+    ],
+    "asar": true,
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "OptiDZ-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "shortcutName": "OptiDZ",
+      "menuCategory": "OptiDZ",
+      "installerLanguages": ["fr_FR"],
+      "language": "1036",
+      "displayLanguageSelector": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "license": "build/license.txt",
+      "artifactName": "OptiDZ-Setup-${version}.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12"
+  }
+}

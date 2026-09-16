@@ -1,0 +1,16 @@
+CE DOSSIER = ce que tu envoies au BINOME (pas au client)
+
+Fichier :
+  OptiDZ-Admin-Setup.exe
+
+Chez le binome :
+  1) Double-clic sur OptiDZ-Admin-Setup.exe
+  2) Suivant → J'accepte → Suivant → Installer → Terminer
+  3) Une icone "OptiDZ Admin" apparait sur le Bureau
+  4) Mot de passe : OptiAdmin#2026
+  5) Onglet "Creer cle"
+       - Essai 7 jours  → copier ESSAI-XXXX
+       - Achat illimite → copier PRO-XXXX
+
+Le client recoit UNIQUEMENT OptiDZ-Setup.exe + une cle.
+Ne lui envoie PAS OptiDZ-Admin-Setup.exe.

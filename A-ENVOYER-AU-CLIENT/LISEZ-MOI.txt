@@ -1,0 +1,15 @@
+CE DOSSIER = ce que tu envoies au CLIENT (Telegram)
+
+Fichier unique :
+  OptiDZ-Setup.exe
+
+Ne mets PAS Lancer-Admin.bat ici.
+Ne mets PAS le dossier admin.
+
+Chez le client :
+  1) Telecharge OptiDZ-Setup.exe
+  2) Double-clic
+  3) Suivant → J'accepte → Suivant → Installer → Terminer
+  4) Une icone OptiDZ apparait sur le Bureau
+  5) Il choisit Essayer + ta cle ESSAI
+     ou J'ai achete + ta cle PRO

@@ -1,0 +1,33 @@
+COMMENT ENVOYER OPTIDZ AU CLIENT
+================================
+
+2 LICENCES (admin les genere et les donne)
+--------------------------------
+Licence 1 ESSAI : 7 jours puis l'app se ferme
+Licence 2 ACHAT (PRO) : illimitee, l'app s'ouvre normalement
+
+1) CHEZ TOI
+   Lancer-Admin.bat  →  mot de passe OptiAdmin#2026
+   Onglet "Creer cle"
+     - Essai 7 jours  → copier ESSAI-XXXX
+     - Achat illimite → copier PRO-XXXX
+
+2) TELEGRAM ESSAI
+--------------------------------
+Bonjour, voici OptiDZ-Setup.exe
+Double-clic → Suivant → J'accepte → Installer → Terminer
+Puis "Essayer gratuitement" + cle ESSAI :
+  ESSAI-XXXX-XXXX
+Apres 7 jours l'app se ferme.
+--------------------------------
+
+3) TELEGRAM APRES ACHAT
+--------------------------------
+Merci pour l'achat. Voici votre cle PRO :
+  PRO-XXXX-XXXX
+Ouvrez OptiDZ → "J'ai achete" → entrez la cle.
+L'application s'ouvre sans limite.
+--------------------------------
+
+Installateur : dist\OptiDZ-Setup-1.0.3.exe
+(ou Creer-Installateur-Windows.bat pour le regenerer)

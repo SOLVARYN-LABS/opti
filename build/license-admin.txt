@@ -1,0 +1,12 @@
+CONTRAT — OptiDZ Admin (éditeur)
+================================
+
+Outil interne pour créer les clés d’essai (ESSAI) et d’achat (PRO).
+
+En installant OptiDZ Admin, vous acceptez que :
+1. L’usage est réservé à l’équipe OptiDZ (pas au client opticien).
+2. La copie, revente ou redistribution non autorisée est interdite.
+3. Les données de clés restent locales sur cet ordinateur.
+4. © OptiDZ — Benaboud Roqia & Abdarahim Salem. Tous droits réservés.
+
+Cliquez sur « J'accepte » pour continuer l'installation.

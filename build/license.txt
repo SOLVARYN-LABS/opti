@@ -1,0 +1,12 @@
+CONTRAT DE LICENCE — OptiDZ
+============================
+
+Logiciel de gestion d'optique pour l'Algérie.
+
+En installant OptiDZ, vous acceptez que :
+1. L'usage est autorisé pour votre magasin / optique.
+2. La copie, revente ou redistribution non autorisée est interdite.
+3. Les données restent locales sur votre ordinateur.
+4. © OptiDZ — Benaboud Roqia & Abdarahim Salem. Tous droits réservés.
+
+Cliquez sur « J'accepte » pour continuer l'installation.

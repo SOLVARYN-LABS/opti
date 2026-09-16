@@ -1,0 +1,16 @@
+COMMENT ENVOYER L'ADMIN AU BINOME
+=================================
+
+Fichier : A-ENVOYER-AU-BINOME\OptiDZ-Admin-Setup.exe
+(ou Creer-Installateur-Admin.bat pour le regenerer)
+
+Telegram :
+--------------------------------
+Here is OptiDZ Admin (internal tool, not for clients).
+Double-click OptiDZ-Admin-Setup.exe
+Next → I accept → Install → Finish
+Desktop shortcut: OptiDZ Admin
+Password: OptiAdmin#2026
+Create keys: ESSAI (7 days) or PRO (unlimited).
+The customer only gets OptiDZ-Setup.exe + one key.
+--------------------------------
