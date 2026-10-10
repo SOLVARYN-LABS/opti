@@ -124,6 +124,12 @@ window.OptiAtelier = (function () {
     const el = document.getElementById('opAge');
     if (el) el.value = ageOf(document.getElementById('opBirth')?.value);
   }
+  function localDT(iso) {
+    if (iso) return iso;
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
   function recalcOp() {
     const n = (id) => +document.getElementById(id)?.value || 0;
     const line = (prix, rem, q) => Math.max(0, prix * Math.max(1, q || 1) * (1 - rem / 100));
@@ -133,15 +139,19 @@ window.OptiAtelier = (function () {
     const remG = n('opRemPct');
     const after = Math.max(0, ht * (1 - remG / 100));
     const paid = n('opPaid');
+    const cover = n('opCover');
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = Math.round(v); };
     set('opAvant', ht);
     set('opTotal', after);
-    set('opReste', Math.max(0, after - paid));
+    set('opReste', Math.max(0, after - cover - paid));
   }
   function onProductPick(selId, priceId) {
     const id = +document.getElementById(selId)?.value || 0;
     const p = db().products.find((x) => x.id === id);
     if (p && document.getElementById(priceId)) document.getElementById(priceId).value = p.sell || 0;
+    const map = { sLoinV: 'verre_loin', sLoinM: 'monture_loin', sPresV: 'verre_pres', sPresM: 'monture_pres', sAcc1: 'acc1', sAcc2: 'acc2' };
+    const nEl = document.getElementById('n_' + (map[selId] || ''));
+    if (nEl && p) nEl.value = (p.brand + ' ' + (p.model || p.ref || '')).trim();
     recalcOp();
   }
 
@@ -160,7 +170,8 @@ window.OptiAtelier = (function () {
       extra = extra || '';
       return `<tr>
         <th>${label}</th>
-        <td><select id="${selId}" onchange="OptiApp.onProductPick('${selId}','${prixId}')">${prodOpts(type, it.productId)}</select></td>
+        <td><select id="${selId}" onchange="OptiApp.onProductPick('${selId}','${prixId}')">${prodOpts(type, it.productId)}</select>
+          <input id="n_${kind}" placeholder="Nom sur le bon" value="${esc(it.label || '')}" style="margin-top:4px"></td>
         <td class="op-tint"></td>
         <td><input id="${prixId}" type="number" value="${it.price || ''}" oninput="OptiApp.recalcOp()"></td>
         <td><input id="${remId}" type="number" value="${it.discount || ''}" oninput="OptiApp.recalcOp()"></td>
@@ -202,6 +213,8 @@ window.OptiAtelier = (function () {
             <div class="field"><label>Médecin</label><input id="opDoc" list="opDocs" value="${esc(sale?.doctor || '')}" placeholder="Prescripteur">
               <datalist id="opDocs">${doctors.map((x) => `<option value="${esc(x)}">`).join('')}</datalist></div>
             <div class="field"><label>Date prescription</label><input id="opRxDate" type="date" value="${esc(sale?.rxDate || OptiStore.todayISO())}"></div>
+            <div class="field"><label>Livraison prévue</label><input id="opLivDate" type="datetime-local" value="${esc(sale?.livraisonPrevue || localDT())}"></div>
+            <div class="field"><label>Observation</label><input id="opObs" value="${esc(sale?.observation || '')}" placeholder="Observation"></div>
             <button type="button" class="btn sm" onclick="OptiApp.copyOdToOg()">OD → OG</button>
           </div>
           <div class="op-eyes">
@@ -219,7 +232,8 @@ window.OptiAtelier = (function () {
               ${line('monture_pres', 'Montures', 'monture', 'pPresM', 'rPresM', 'sPresM', '<td></td>')}
               <tr>
                 <th>Accessoire 1</th>
-                <td><select id="sAcc1" onchange="OptiApp.onProductPick('sAcc1','pAcc1')">${prodOpts('accessoire', item('acc1').productId)}</select></td>
+                <td><select id="sAcc1" onchange="OptiApp.onProductPick('sAcc1','pAcc1')">${prodOpts('accessoire', item('acc1').productId)}</select>
+                  <input id="n_acc1" placeholder="Nom sur le bon" value="${esc(item('acc1').label || '')}" style="margin-top:4px"></td>
                 <td></td>
                 <td><input id="pAcc1" type="number" value="${item('acc1').price || ''}" oninput="OptiApp.recalcOp()"></td>
                 <td><input id="rAcc1" type="number" value="${item('acc1').discount || ''}" oninput="OptiApp.recalcOp()"></td>
@@ -228,7 +242,8 @@ window.OptiAtelier = (function () {
               </tr>
               <tr>
                 <th>Accessoire 2</th>
-                <td><select id="sAcc2" onchange="OptiApp.onProductPick('sAcc2','pAcc2')">${prodOpts('accessoire', item('acc2').productId)}</select></td>
+                <td><select id="sAcc2" onchange="OptiApp.onProductPick('sAcc2','pAcc2')">${prodOpts('accessoire', item('acc2').productId)}</select>
+                  <input id="n_acc2" placeholder="Nom sur le bon" value="${esc(item('acc2').label || '')}" style="margin-top:4px"></td>
                 <td></td>
                 <td><input id="pAcc2" type="number" value="${item('acc2').price || ''}" oninput="OptiApp.recalcOp()"></td>
                 <td><input id="rAcc2" type="number" value="${item('acc2').discount || ''}" oninput="OptiApp.recalcOp()"></td>
@@ -247,6 +262,7 @@ window.OptiAtelier = (function () {
             <div class="field"><label>Total avant remise</label><input id="opAvant" readonly></div>
             <div class="field"><label>Remise %</label><input id="opRemPct" type="number" value="${sale?.discount || 0}" oninput="OptiApp.recalcOp()"></div>
             <div class="field"><label>Total</label><input id="opTotal" readonly></div>
+            <div class="field"><label>Rem. ODA</label><input id="opCover" type="number" value="${sale?.coverAmount || 0}" oninput="OptiApp.recalcOp()"></div>
             <div class="field"><label>Encaissé</label><input id="opPaid" type="number" value="${sale?.paid || 0}" oninput="OptiApp.recalcOp()"></div>
             <div class="field"><label>Reste à payer</label><input id="opReste" readonly></div>
             <div class="field"><label>Mode</label><select id="opPay">${(d.shop.paymentMethods || []).map((m) => `<option ${m === (sale?.method || 'Espèces') ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select></div>
@@ -255,7 +271,7 @@ window.OptiAtelier = (function () {
         <div class="toolbar">
           <button class="btn gold" type="submit">Enregistrer l’opération</button>
           <button class="btn" type="button" onclick="OptiApp.go('#/app/atelier')">Nouvelle</button>
-          ${sale ? `<button class="btn" type="button" onclick="OptiApp.printRecu('${sale.id}')">Reçu</button>` : ''}
+          ${sale ? `<button class="btn gold" type="button" onclick="OptiApp.printRecu('${sale.id}')">Imprimer le bon / reçu</button>` : ''}
         </div>
       </form>
       <div class="card tablewrap" style="margin-top:16px">
@@ -280,9 +296,10 @@ window.OptiAtelier = (function () {
     const discount = +(document.getElementById(rem)?.value || 0);
     const q = +(document.getElementById(qid)?.value || 1) || 1;
     if (!productId && !price) return null;
+    const custom = (document.getElementById('n_' + kind)?.value || '').trim();
     return {
       kind, productId: productId || 0, q, price, discount,
-      label: p ? (p.brand + ' ' + (p.model || p.ref || '')) : kind,
+      label: custom || (p ? (p.brand + ' ' + (p.model || p.ref || '')) : kind),
       delivered: !!document.getElementById(liv)?.checked
     };
   }
@@ -331,9 +348,12 @@ window.OptiAtelier = (function () {
     const ht = items.reduce((a, it) => a + lineTot(it), 0);
     const disc = +(document.getElementById('opRemPct')?.value || 0);
     const total = Math.max(0, ht * (1 - disc / 100));
-    const paidN = Math.min(total, +(document.getElementById('opPaid')?.value || 0));
+    const coverAmt = Math.max(0, +(document.getElementById('opCover')?.value || 0));
+    const paidN = Math.min(Math.max(0, total - coverAmt), +(document.getElementById('opPaid')?.value || 0));
     const delivered = !!document.getElementById('opLivrer')?.checked;
     const method = document.getElementById('opPay')?.value || 'Espèces';
+    const observation = (document.getElementById('opObs')?.value || '').trim();
+    const livraisonPrevue = document.getElementById('opLivDate')?.value || '';
     const prev = d.sales.find((s) => s.id === saleId);
     if (prev && prev.status !== 'retour') {
       (prev.items || []).forEach((it) => {
@@ -355,10 +375,10 @@ window.OptiAtelier = (function () {
       date: prev?.date || OptiStore.todayISO(),
       clientId: cid, items, discount: disc, tax: 0, total, paid: paidN, method,
       storeId: d.currentStore, userId: d.session?.id,
-      status: paidN >= total ? 'payée' : (paidN > 0 ? 'partielle' : 'impayée'),
-      coverOrg: 'Aucune', coverAmount: 0,
+      status: (paidN + coverAmt) >= total ? 'payée' : (paidN > 0 ? 'partielle' : 'impayée'),
+      coverOrg: coverAmt ? (prev?.coverOrg || 'ODA') : 'Aucune', coverAmount: coverAmt,
       payments: paidN ? [{ date: OptiStore.todayISO(), amount: paidN, method }] : [],
-      vision, doctor, rxDate, delivered, opNum,
+      vision, doctor, rxDate, delivered, opNum, observation, livraisonPrevue,
       printRx: !!document.getElementById('opPrintRx')?.checked,
       printRecu: !!document.getElementById('opPrintRecu')?.checked,
       atelier: true
@@ -386,6 +406,43 @@ window.OptiAtelier = (function () {
     renderAtelier(sale.id);
   }
 
+  function fmtRecuDate(iso) {
+    if (!iso) return '';
+    const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+    if (!m) return String(iso);
+    return m[4] ? `${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}` : `${m[3]}/${m[2]}/${m[1]}`;
+  }
+  function da2(n) {
+    return Number(n || 0).toLocaleString('fr-DZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DA';
+  }
+  function barcodeSvg(value) {
+    const patterns = {
+      '0': 'nnnwwnwnn', '1': 'wnnwnnnnw', '2': 'nnwwnnnnw', '3': 'wnwwnnnnn', '4': 'nnnwwnnnw',
+      '5': 'wnnwwnnnn', '6': 'nnwwwnnnn', '7': 'nnnwnnwnw', '8': 'wnnwnnwnn', '9': 'nnwwnnwnn',
+      'A': 'wnnnnwnnw', 'B': 'nnwnnwnnw', 'C': 'wnwnnwnnn', 'D': 'nnnnwwnnw', 'E': 'wnnnwwnnn',
+      'F': 'nnwnwwnnn', 'G': 'nnnnnwwnw', 'H': 'wnnnnwwnn', 'I': 'nnwnnwwnn', 'J': 'nnnnwwwnn',
+      'K': 'wnnnnnnww', 'L': 'nnwnnnnww', 'M': 'wnwnnnnwn', 'N': 'nnnnwnnww', 'O': 'wnnnwnnwn',
+      'P': 'nnwnwnnwn', 'Q': 'nnnnnnwww', 'R': 'wnnnnnwwn', 'S': 'nnwnnnwwn', 'T': 'nnnnwnwwn',
+      'U': 'wwnnnnnnw', 'V': 'nwwnnnnnw', 'W': 'wwwnnnnnn', 'X': 'nwnnwnnnw', 'Y': 'wwnnwnnnn',
+      'Z': 'nwwnwnnnn', '*': 'nwnnwnwnn'
+    };
+    const raw = String(value || '').toUpperCase().replace(/[^0-9A-Z]/g, '') || '0';
+    const text = '*' + raw + '*';
+    let x = 0;
+    const rects = [];
+    for (const ch of text) {
+      const p = patterns[ch];
+      if (!p) continue;
+      for (let i = 0; i < 9; i++) {
+        const w = p[i] === 'w' ? 3 : 1;
+        if (i % 2 === 0) rects.push(`<rect x="${x}" y="0" width="${w}" height="36"/>`);
+        x += w;
+      }
+      x += 1;
+    }
+    return `<svg class="bc" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${x} 48" preserveAspectRatio="xMidYMid meet">${rects.join('')}<text x="${x / 2}" y="47" text-anchor="middle" font-size="8" font-family="Arial">${esc(raw)}</text></svg>`;
+  }
+
   function printRecu(id) {
     const s = db().sales.find((x) => x.id === id);
     if (!s) return toast('Reçu introuvable');
@@ -394,66 +451,115 @@ window.OptiAtelier = (function () {
     const v = s.vision || { od: {}, og: {} };
     const od = OptiStore.normalizeEye(v.od);
     const og = OptiStore.normalizeEye(v.og);
-    const row = (eye, dist) => `<td>${esc(eye[dist]?.sph || '')}</td><td>${esc(eye[dist]?.cyl || '')}</td><td>${esc(eye[dist]?.axis || '')}</td><td>${esc(eye[dist]?.add || '')}</td><td>${esc(eye[dist]?.prism || '')}</td><td>${esc(eye[dist]?.base || '')}</td>`;
+    const num = String(s.opNum || s.id);
+    const rxRow = (eye, dist) =>
+      `<td>${esc(eye[dist]?.sph || '')}</td><td>${esc(eye[dist]?.cyl || '')}</td><td>${esc(eye[dist]?.axis || '')}</td><td>${esc(eye[dist]?.add || '')}</td><td>${esc(eye[dist]?.prism || '')}</td><td>${esc(eye[dist]?.base || '')}</td>`;
+    const rxTable = (title, eye) => `
+      <table class="rx">
+        <thead>
+          <tr><th colspan="7">${title}</th></tr>
+          <tr><th></th><th>Sph</th><th>Cyl</th><th>Axe</th><th>Add</th><th>Prism</th><th>Base</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>Loin</th>${rxRow(eye, 'loin')}</tr>
+          <tr><th>Interm</th>${rxRow(eye, 'inter')}</tr>
+          <tr><th>Près</th>${rxRow(eye, 'pres')}</tr>
+          <tr><th>Écart</th><td colspan="6">${esc(eye.ecart || '')}</td></tr>
+          <tr><th>Hauteur</th><td colspan="6">${esc(eye.hauteur || '')}</td></tr>
+        </tbody>
+      </table>`;
     const it = (k) => (s.items || []).find((i) => i.kind === k);
-    const lab = (k) => { const x = it(k); return x ? esc(x.label) : ''; };
-    const pr = (k) => { const x = it(k); return x ? money(x.price * (x.q || 1) * (1 - (x.discount || 0) / 100)) : ''; };
-    const rest = Math.max(0, (s.total || 0) - (s.paid || 0));
-    const paidStamp = (s.paid || 0) >= (s.total || 0) && s.total ? 'PAYÉ' : ((s.paid || 0) > 0 ? 'ACOMPTE' : '');
-    const livStamp = s.delivered ? 'LIVRÉ' : '';
-    OptiOps.printDoc('Reçu ' + (s.opNum || s.id), `
-      <div class="recu">
-        <div class="recu-top">
-          <div>
-            <div class="recu-no">Reçu ${esc(String(s.opNum || s.id))}</div>
-            <div>${esc(c.civility || '')} ${esc(c.lastName || '')} ${esc(c.firstName || '')}</div>
-            <div>Tél. ${esc(c.phone || '')}</div>
-            <div>Prescripteur : ${esc(s.doctor || '')}</div>
-            <div>Date de réception : ${esc(s.date)}</div>
+    const lineAmt = (x) => x ? (x.price * (x.q || 1) * (1 - (x.discount || 0) / 100)) : 0;
+    const loinV = it('verre_loin');
+    const presV = it('verre_pres');
+    const mont = it('monture_loin') || it('monture_pres');
+    const montAmt = lineAmt(it('monture_loin')) + lineAmt(it('monture_pres'));
+    const acc1 = it('acc1');
+    const acc2 = it('acc2');
+    const art = (code, label, amt) =>
+      `<tr><th>${code}</th><td>${esc(label || '')}</td><td class="r">${amt ? da2(amt) : ''}</td></tr>`;
+    const remOda = s.coverAmount || 0;
+    const rest = Math.max(0, (s.total || 0) - remOda - (s.paid || 0));
+    const fullyPaid = (s.paid || 0) + remOda >= (s.total || 0) && s.total;
+    const clientName = [c.civility, c.lastName, c.firstName].filter(Boolean).join(' ');
+    const avis = shop.ticketAvis || 'Les verres et montures commandés ne sont ni repris ni échangés. Conservez ce reçu pour tout retrait ou SAV.';
+    OptiOps.printDoc('Reçu ' + num, `
+      <div class="bon">
+        <div class="top">
+          <div class="cli">
+            <div class="no">Reçu ${esc(num)}</div>
+            <div class="ln"><b>${esc(clientName)}</b></div>
+            <div class="ln">Prescripteur : ${esc(s.doctor || '')}</div>
+            <div class="ln">Observation : ${esc(s.observation || '')}</div>
+            <div class="ln">Tél. : ${esc(c.phone || '')}</div>
+            <div class="ln">Date de réception : ${esc(fmtRecuDate(s.date))}</div>
+            <div class="ln">Livraison prévue : ${esc(fmtRecuDate(s.livraisonPrevue) || fmtRecuDate(s.date))}</div>
           </div>
-          <div class="recu-shop">
-            <strong>${esc(shop.name)}</strong><br>${esc(shop.address || '')}<br>${esc(shop.city || '')}<br>${esc(shop.phone || '')} ${esc(shop.mobile || '')}<br>${esc(shop.email || '')}
+          <div class="mag">
+            ${shop.logo ? `<img class="logo" src="${shop.logo}" alt="">` : ''}
+            <div class="shop">${esc(shop.name)}</div>
+            <div>${esc(shop.address || '')}</div>
+            <div>${esc(shop.city || '')}</div>
+            <div>${esc(shop.phone || '')}</div>
+            ${shop.mobile ? `<div>${esc(shop.mobile)}</div>` : ''}
+            <div>${esc(shop.email || '')}</div>
+            <div class="no2">Reçu N° ${esc(num)}</div>
+            ${barcodeSvg(num)}
           </div>
         </div>
-        <table class="recu-rx">
-          <thead><tr><th></th><th colspan="6">OD</th><th colspan="6">OG</th></tr>
-          <tr><th></th><th>Sph</th><th>Cyl</th><th>Axe</th><th>Add</th><th>Prism</th><th>Base</th><th>Sph</th><th>Cyl</th><th>Axe</th><th>Add</th><th>Prism</th><th>Base</th></tr></thead>
-          <tbody>
-            <tr><th>Loin</th>${row(od, 'loin')}${row(og, 'loin')}</tr>
-            <tr><th>Interm</th>${row(od, 'inter')}${row(og, 'inter')}</tr>
-            <tr><th>Près</th>${row(od, 'pres')}${row(og, 'pres')}</tr>
-            <tr><th>Écart / H</th><td colspan="6">${esc(od.ecart || '')} / ${esc(od.hauteur || '')}</td><td colspan="6">${esc(og.ecart || '')} / ${esc(og.hauteur || '')}</td></tr>
-          </tbody>
+        <div class="eyes">${rxTable('OD', od)}${rxTable('OG', og)}</div>
+        <div class="mid">
+          <table class="art">
+            ${art('OD', loinV?.label || '', lineAmt(loinV))}
+            ${art('OG', (presV?.label || loinV?.label || ''), lineAmt(presV))}
+            ${art('MONTURE', mont?.label || '', montAmt)}
+            ${art('ACC1', acc1?.label || '', lineAmt(acc1))}
+            ${art('ACC2', acc2?.label || '', lineAmt(acc2))}
+          </table>
+          <div class="stamps">
+            ${fullyPaid ? '<span class="stamp pay">PAYÉ</span>' : ((s.paid || 0) > 0 ? '<span class="stamp pay">ACOMPTE</span>' : '')}
+            ${s.delivered ? '<span class="stamp liv">LIVRÉ</span>' : ''}
+          </div>
+        </div>
+        <table class="tot">
+          <tr><td>Total</td><td class="r">${da2(s.total)}</td></tr>
+          <tr><td>Rem ODA</td><td class="r">${da2(remOda)}</td></tr>
+          <tr><td>Encaissé</td><td class="r">${da2(s.paid)}</td></tr>
+          <tr><td>Reste</td><td class="r">${da2(rest)}</td></tr>
+          <tr class="rap"><td>RAP</td><td class="r">${da2(rest)}</td></tr>
         </table>
-        <table class="recu-art">
-          <tr><th>OD</th><td>${lab('verre_loin')}</td><td class="r">${pr('verre_loin')}</td></tr>
-          <tr><th>OG</th><td>${lab('verre_pres') || lab('verre_loin')}</td><td class="r">${pr('verre_pres')}</td></tr>
-          <tr><th>MONTURE</th><td>${lab('monture_loin') || lab('monture_pres')}</td><td class="r">${pr('monture_loin') || pr('monture_pres')}</td></tr>
-          <tr><th>ACC1</th><td>${lab('acc1')}</td><td class="r">${pr('acc1')}</td></tr>
-          <tr><th>ACC2</th><td>${lab('acc2')}</td><td class="r">${pr('acc2')}</td></tr>
-        </table>
-        <div class="recu-stamps">${paidStamp ? `<span class="stamp ok">${paidStamp}</span>` : ''}${livStamp ? `<span class="stamp liv">${livStamp}</span>` : ''}</div>
-        <table class="recu-tot">
-          <tr><td>Total</td><td class="r">${money(s.total)}</td></tr>
-          <tr><td>Encaissé</td><td class="r">${money(s.paid)}</td></tr>
-          <tr><td>Reste à payer</td><td class="r">${money(rest)}</td></tr>
-        </table>
-        <p class="recu-foot">AVIS IMPORTANT · ${esc(shop.ticketFooter || '')}</p>
+        <div class="avis"><b>AVIS IMPORTANT</b><p>${esc(avis)}</p></div>
+        <div class="note"><b>NOTE</b><p>${esc(shop.ticketFooter || 'Merci de votre visite')}</p></div>
       </div>
       <style>
-        .recu{font-family:ui-sans-serif,system-ui,sans-serif;color:#111;max-width:190mm;margin:0 auto;font-size:12px}
-        .recu-top{display:flex;justify-content:space-between;gap:24px;margin-bottom:12px}
-        .recu-no{font-size:18px;font-weight:800}
-        .recu-rx,.recu-art,.recu-tot{width:100%;border-collapse:collapse;margin:8px 0}
-        .recu-rx th,.recu-rx td,.recu-art th,.recu-art td,.recu-tot td{border:1px solid #bbb;padding:4px 6px}
-        .r{text-align:right}
-        .recu-stamps{display:flex;gap:12px;margin:10px 0}
-        .stamp{border:2px solid #0D7A70;color:#0D7A70;font-weight:800;padding:6px 14px;transform:rotate(-8deg)}
-        .stamp.liv{border-color:#147A45;color:#147A45}
-        .recu-foot{font-size:11px;color:#555;margin-top:16px}
-        @media print{button{display:none}}
+        .bon{max-width:148mm;margin:0 auto;color:#111}
+        .top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:8px}
+        .cli,.mag{flex:1}
+        .mag{text-align:right}
+        .no{font-size:18px;font-weight:800;margin-bottom:4px}
+        .no2{font-weight:800;margin:6px 0 2px}
+        .shop{font-size:15px;font-weight:800;letter-spacing:.04em}
+        .ln{margin:2px 0}
+        .logo{max-height:42px;max-width:90px;object-fit:contain;margin-bottom:4px}
+        .bc{width:140px;height:48px;display:block;margin:4px 0 0 auto}
+        .eyes{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+        table{width:100%;border-collapse:collapse}
+        .rx th,.rx td,.art th,.art td{border:1px solid #333;padding:3px 4px;font-size:10px}
+        .rx thead th{background:#f3f3f3;text-align:center}
+        .art{margin-top:6px}
+        .art th{width:72px;text-align:left}
+        .r{text-align:right;white-space:nowrap}
+        .mid{position:relative}
+        .stamps{position:absolute;right:8px;top:8px;display:flex;gap:10px;pointer-events:none}
+        .stamp{display:inline-block;border:2.5px solid #0a7a3a;color:#0a7a3a;font-weight:800;font-size:18px;padding:4px 10px;transform:rotate(-12deg);background:rgba(255,255,255,.75);letter-spacing:.08em}
+        .stamp.liv{border-color:#0d7a70;color:#0d7a70;transform:rotate(8deg);margin-top:18px}
+        .tot{width:48%;margin:10px 0 0 auto}
+        .tot td{padding:3px 6px;border-bottom:1px solid #ccc}
+        .tot .rap td{font-weight:800;border-bottom:2px solid #111}
+        .avis,.note{margin-top:10px;border-top:1px dashed #999;padding-top:6px;font-size:9.5px}
+        .avis p,.note p{margin:3px 0 0}
       </style>
-    `, 'a4');
+    `, 'recu');
   }
 
   const TABLE_META = [

@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
 const { chat, readKey } = require('../backend/claude-api');
 
 const dataFile = () => path.join(app.getPath('userData'), 'optidz-data-v3.json');
@@ -19,6 +20,58 @@ function resolveIcon() {
   });
 }
 
+function contentType(file) {
+  const ext = path.extname(file).toLowerCase();
+  return ({
+    '.html': 'text/html; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.ico': 'image/x-icon',
+    '.svg': 'image/svg+xml',
+    '.wasm': 'application/wasm',
+    '.woff2': 'font/woff2',
+    '.map': 'application/json'
+  }[ext] || 'application/octet-stream');
+}
+
+function startAppServer() {
+  const root = path.resolve(path.join(__dirname, '..'));
+  return new Promise((resolve, reject) => {
+    const server = http.createServer((req, res) => {
+      try {
+        const u = new URL(req.url || '/', 'http://127.0.0.1');
+        let rel = decodeURIComponent(u.pathname);
+        if (rel === '/' || rel === '') rel = '/index.html';
+        const file = path.normalize(path.join(root, rel));
+        const relToRoot = path.relative(root, file);
+        if (relToRoot.startsWith('..') || path.isAbsolute(relToRoot)) {
+          res.writeHead(403);
+          res.end();
+          return;
+        }
+        fs.readFile(file, (err, data) => {
+          if (err) {
+            res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.end('Introuvable');
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': contentType(file), 'Cache-Control': 'no-store' });
+          res.end(data);
+        });
+      } catch (e) {
+        res.writeHead(500);
+        res.end(String(e && e.message ? e.message : e));
+      }
+    });
+    server.on('error', reject);
+    server.listen(0, '127.0.0.1', () => resolve(server.address().port));
+  });
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1480,
@@ -28,7 +81,7 @@ function createWindow() {
     title: 'OptiDZ — Gestion d’optique',
     icon: resolveIcon(),
     backgroundColor: '#0F6E66',
-    show: false,
+    show: true,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -38,8 +91,15 @@ function createWindow() {
   });
 
   win.maximize();
-  win.loadFile(path.join(__dirname, '..', 'index.html'));
-  win.once('ready-to-show', () => win.show());
+  win.webContents.on('did-fail-load', (_e, code, desc, url) => {
+    console.error('OptiDZ load fail', code, desc, url);
+  });
+  startAppServer().then((port) => {
+    win.loadURL('http://127.0.0.1:' + port + '/index.html');
+  }).catch((err) => {
+    console.error(err);
+    win.loadFile(path.join(__dirname, '..', 'index.html'));
+  });
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };

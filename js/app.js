@@ -2440,7 +2440,12 @@ ${JSON.stringify(claudeContext())}`;
     await OptiStore.load();
     await OptiLicense.ensureVault();
     if (db().users?.length) OptiLicense.registerShopFromDb(db());
-    if ('serviceWorker' in navigator) {
+    if (window.optidzDesktop) {
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) await r.unregister();
+      } catch {}
+    } else if ('serviceWorker' in navigator) {
       try { await navigator.serviceWorker.register('sw.js'); } catch {}
     }
     window.addEventListener('online', () => { if (db().session) route(); });

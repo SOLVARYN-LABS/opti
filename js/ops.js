@@ -41,6 +41,9 @@ window.OptiOps = (function () {
     if (kind === 'ticket') {
       return 'body{font-family:ui-sans-serif,system-ui,sans-serif;width:72mm;margin:0 auto;font-size:12px;color:#111}table{width:100%;border-collapse:collapse}td{padding:3px 0}hr{border:0;border-top:1px dashed #999}.t{text-align:center}@media print{@page{size:80mm auto;margin:4mm}button{display:none}}';
     }
+    if (kind === 'recu') {
+      return `@page{size:A5 portrait;margin:5mm}*{box-sizing:border-box}body{margin:0;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:10.5px}button{margin:12px auto;display:block;background:#0D7A70;color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:700}@media print{button{display:none}}`;
+    }
     return `@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0;color:#12151A;font-family:"Source Sans 3",system-ui,sans-serif;font-size:13px}.sheet{max-width:190mm;margin:0 auto}.band{height:8px;background:linear-gradient(90deg,#0A5F58,#0D7A70,#14968A);border-radius:4px 4px 0 0}.wrap{border:1px solid #E4E8E6;border-top:0;padding:22px 26px 18px;border-radius:0 0 8px 8px}.top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:22px}.brand{display:flex;gap:12px;align-items:center}.mark{width:46px;height:46px;border-radius:12px;background:#0D7A70;color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px}.shopname{font-size:22px;margin:0;letter-spacing:-.04em;font-weight:700}.muted{color:#667078;line-height:1.45}.doc{text-align:right}.doc h2{margin:0;font-size:26px;letter-spacing:-.04em;color:#0D7A70}.pill{display:inline-block;background:#E6F5F3;color:#0A5F58;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700;margin-top:6px}.boxes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 18px}.box{border:1px solid #E4E8E6;border-radius:10px;padding:12px 14px;background:#F7FAF9}.box b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#667078;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin:4px 0 16px}th{text-align:left;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#667078;border-bottom:2px solid #0D7A70;padding:8px 6px}td{padding:9px 6px;border-bottom:1px solid #EEF1F0}td.r,th.r{text-align:right}.tot{width:280px;margin-left:auto;border:1px solid #E4E8E6;border-radius:12px;overflow:hidden}.tot div{display:flex;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #EEF1F0}.tot div:last-child{border:0;background:#0D7A70;color:#fff;font-weight:700;font-size:15px}.words{margin:16px 0;padding:10px 12px;background:#F4F6F5;border-radius:8px;font-style:italic;color:#445}.signs{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:28px}.sign{height:78px;border-top:1px dashed #CDD5D2;padding-top:8px;color:#667078;font-size:12px}.foot{margin-top:22px;padding-top:10px;border-top:1px solid #E4E8E6;font-size:11px;color:#667078;display:flex;justify-content:space-between}button{margin:16px auto;display:block;background:#0D7A70;color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:700}@media print{button{display:none}.sheet{max-width:none}}`;
   }
 
@@ -76,6 +79,7 @@ window.OptiOps = (function () {
   function printTicket(id) {
     const s = db().sales.find((x) => x.id === id);
     if (!s) return;
+    if (s.atelier && window.OptiApp?.printRecu) return window.OptiApp.printRecu(id);
     const shop = db().shop;
     const code = String(s.id || '').replace(/"/g, '');
     printDoc(s.id, `
